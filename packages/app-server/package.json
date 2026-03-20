@@ -19,7 +19,7 @@
     "dev:node": "tsx -r dotenv/config --watch src/index.node.ts | pino-pretty",
     "dev:cloudflare": "wrangler dev --test-scheduled --port=8787 src/index.cloudflare.ts",
     "build:cloudflare": "esbuild --bundle src/index.cloudflare.ts --format=esm --outfile=dist-cloudflare/_worker.js --minify",
-    "build:worker": "pnpm --filter @enclosed/app-client --fail-if-no-match build && pnpm run build:cloudflare",
+    "build:worker": "pnpm --filter @enclosed/crypto --fail-if-no-match build && pnpm --filter @enclosed/lib --fail-if-no-match build && pnpm --filter @enclosed/app-client --fail-if-no-match build && pnpm run build:cloudflare",
     "deploy:worker": "pnpm run build:worker && pnpm exec wrangler deploy --config wrangler.toml",
     "preview:worker": "pnpm run build:worker && pnpm exec wrangler versions upload --config wrangler.toml",
     "build:node": "esbuild --bundle src/index.node.ts --platform=node --format=cjs --outfile=dist-node/index.cjs --minify",

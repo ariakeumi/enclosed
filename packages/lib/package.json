@@ -26,7 +26,6 @@
   },
   "react-native": "./dist/index.web.mjs",
   "scripts": {
-    "prepare": "pnpm run build",
     "build": "unbuild",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
