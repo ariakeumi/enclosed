@@ -1,11 +1,10 @@
 import { createNote, filesToNoteAssets } from '@enclosed/lib';
 import { storeNote } from './notes.services';
 
-export { encryptAndCreateNote };
+export { createAndStoreNote };
 
-async function encryptAndCreateNote(args: {
+async function createAndStoreNote(args: {
   content: string;
-  password?: string;
   ttlInSeconds?: number;
   deleteAfterReading: boolean;
   fileAssets: File[];

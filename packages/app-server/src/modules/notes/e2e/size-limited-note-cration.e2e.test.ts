@@ -5,7 +5,7 @@ import { createMemoryStorage } from '../../storage/factories/memory.storage';
 
 describe('e2e', () => {
   describe('body limit note creation', async () => {
-    test('a note with an encrypted content larger than the limit configured using maxEncryptedContentLength cannot be created', async () => {
+    test('a note payload larger than the configured limit cannot be created', async () => {
       const { storage } = createMemoryStorage();
 
       const { app } = createServer({
@@ -21,7 +21,6 @@ describe('e2e', () => {
         deleteAfterReading: false,
         ttlInSeconds: 600,
         payload: 'a'.repeat(1024 * 1024 + 1),
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
       };
 

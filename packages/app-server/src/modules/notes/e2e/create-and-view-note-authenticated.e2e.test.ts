@@ -18,17 +18,15 @@ describe('e2e', () => {
 
       test('a note can be created when authenticated and viewed publicly by default', async () => {
         const { storage } = createMemoryStorage();
-
         const { app } = createServer({
           storageFactory: () => ({ storage }),
           config,
         });
 
         const note = {
-          payload: '<encrypted-content>',
+          payload: '<serialized-content>',
           deleteAfterReading: false,
           ttlInSeconds: 600,
-          encryptionAlgorithm: 'aes-256-gcm',
           serializationFormat: 'cbor-array',
         };
 
@@ -39,7 +37,7 @@ describe('e2e', () => {
             body: JSON.stringify(note),
             headers: new Headers({
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sSmY3kpYwtAY4wEJLXCWZVKZCYRW5cH4UGkw9RMEBrk', // valid token for key 'secret-key'
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sSmY3kpYwtAY4wEJLXCWZVKZCYRW5cH4UGkw9RMEBrk',
             }),
           },
         );
@@ -58,25 +56,22 @@ describe('e2e', () => {
         const { note: retrievedNote } = await viewNoteResponse.json<any>();
 
         expect(omit(retrievedNote, 'expirationDate')).to.eql({
-          payload: '<encrypted-content>',
-          encryptionAlgorithm: 'aes-256-gcm',
+          payload: '<serialized-content>',
           serializationFormat: 'cbor-array',
         });
       });
 
       test('a private note can be created when authenticated and viewed only by authenticated users', async () => {
         const { storage } = createMemoryStorage();
-
         const { app } = createServer({
           storageFactory: () => ({ storage }),
           config,
         });
 
         const note = {
-          payload: '<encrypted-content>',
+          payload: '<serialized-content>',
           deleteAfterReading: false,
           ttlInSeconds: 600,
-          encryptionAlgorithm: 'aes-256-gcm',
           serializationFormat: 'cbor-array',
           isPublic: false,
         };
@@ -88,7 +83,7 @@ describe('e2e', () => {
             body: JSON.stringify(note),
             headers: new Headers({
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sSmY3kpYwtAY4wEJLXCWZVKZCYRW5cH4UGkw9RMEBrk', // valid token for key 'secret-key'
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sSmY3kpYwtAY4wEJLXCWZVKZCYRW5cH4UGkw9RMEBrk',
             }),
           },
         );
@@ -112,15 +107,14 @@ describe('e2e', () => {
 
         const viewNoteAuthResponse = await app.request(`/api/notes/${noteId}`, {
           headers: {
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sSmY3kpYwtAY4wEJLXCWZVKZCYRW5cH4UGkw9RMEBrk', // valid token for key
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sSmY3kpYwtAY4wEJLXCWZVKZCYRW5cH4UGkw9RMEBrk',
           },
         });
 
         expect(viewNoteAuthResponse.status).to.eql(200);
         expect(await viewNoteAuthResponse.json()).to.eql({
           note: {
-            payload: '<encrypted-content>',
-            encryptionAlgorithm: 'aes-256-gcm',
+            payload: '<serialized-content>',
             serializationFormat: 'cbor-array',
           },
         });

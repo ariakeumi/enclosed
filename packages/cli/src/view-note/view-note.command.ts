@@ -1,8 +1,7 @@
-import { decryptNote, fetchNote, isApiClientErrorWithStatusCode, parseNoteUrl } from '@enclosed/lib';
+import { fetchNote, isApiClientErrorWithStatusCode, parseNotePayload, parseNoteUrl } from '@enclosed/lib';
 import { defineCommand } from 'citty';
 import picocolors from 'picocolors';
 import { getInstanceUrl } from '../config/config.usecases';
-import { promptForPassword } from './view-note.models';
 
 export const viewNoteCommand = defineCommand({
   meta: {
@@ -15,29 +14,21 @@ export const viewNoteCommand = defineCommand({
       type: 'positional',
       required: true,
     },
-    password: {
-      description: 'Password to decrypt the note (will be prompted if needed and not provided)',
-      valueHint: 'password',
-      alias: 'p',
-      type: 'string',
-      required: false,
-    },
   },
   run: async ({ args }) => {
-    const { noteUrl, password } = args;
+    const { noteUrl } = args;
 
     try {
-      const { noteId, encryptionKey, isPasswordProtected } = parseNoteUrl({ noteUrl });
+      const { noteId } = parseNoteUrl({ noteUrl });
 
-      const { payload } = await fetchNote({
+      const { payload, serializationFormat } = await fetchNote({
         noteId,
         apiBaseUrl: getInstanceUrl(),
       });
 
-      const { note } = await decryptNote({
-        encryptedPayload: payload,
-        encryptionKey,
-        password: isPasswordProtected ? password ?? await promptForPassword() : undefined,
+      const { note } = await parseNotePayload({
+        payload,
+        serializationFormat: serializationFormat as 'cbor-array',
       });
 
       console.log(note.content);
@@ -52,7 +43,7 @@ export const viewNoteCommand = defineCommand({
         return;
       }
 
-      console.error(picocolors.red('Failed to fetch or decrypt note'));
+      console.error(picocolors.red('Failed to fetch note'));
     }
   },
 });

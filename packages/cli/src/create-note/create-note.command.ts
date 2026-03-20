@@ -21,13 +21,6 @@ export const createNoteCommand = defineCommand({
       type: 'positional',
       required: false,
     },
-    password: {
-      description: 'Password to protect the note (default is no password)',
-      valueHint: 'password',
-      default: '',
-      alias: 'p',
-      type: 'string',
-    },
     ttl: {
       description: `Note time-to-live in seconds (default: ${ONE_HOUR_IN_SECONDS}s = 1 hour)`,
       default: String(ONE_HOUR_IN_SECONDS),
@@ -56,7 +49,6 @@ export const createNoteCommand = defineCommand({
   },
   run: async ({ args }) => {
     const {
-      password,
       content: rawContent,
       deleteAfterReading,
       ttl: ttlInSeconds,
@@ -93,7 +85,6 @@ export const createNoteCommand = defineCommand({
 
       const { noteUrl } = await createNote({
         content: content ?? '',
-        password,
         deleteAfterReading,
         ttlInSeconds: Number(ttlInSeconds),
         clientBaseUrl: getInstanceUrl(),

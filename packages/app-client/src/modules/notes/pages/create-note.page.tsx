@@ -21,9 +21,8 @@ import { useNavigate } from '@solidjs/router';
 import { type Component, createSignal, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
 import { renderSVG as renderQrCodeSvg } from 'uqr';
 import { FileUploaderButton } from '../components/file-uploader';
-import { NotePasswordField } from '../components/note-password-field';
 import { useNoteContext } from '../notes.context';
-import { encryptAndCreateNote } from '../notes.usecases';
+import { createAndStoreNote } from '../notes.usecases';
 
 const QrCodeCard: Component<{ noteUrl: string }> = (props) => {
   const getNoteUrl = () => props.noteUrl;
@@ -113,7 +112,6 @@ export const CreateNotePage: Component = () => {
   const { onResetNoteForm, removeResetNoteFormHandler } = useNoteContext();
 
   const [getContent, setContent] = createSignal('');
-  const [getPassword, setPassword] = createSignal('');
   const [getNoteUrl, setNoteUrl] = createSignal('');
   const [getError, setError] = createSignal<{ message: string; details?: string } | null>(null);
   const [getIsNoteCreated, setIsNoteCreated] = createSignal(false);
@@ -126,7 +124,6 @@ export const CreateNotePage: Component = () => {
 
   function resetNoteForm() {
     setContent('');
-    setPassword('');
     setNoteUrl('');
     setError(null);
     setIsPublic(true);
@@ -159,9 +156,8 @@ export const CreateNotePage: Component = () => {
 
     setIsNoteCreating(true);
 
-    const [createdNote, error] = await safely(encryptAndCreateNote({
+    const [createdNote, error] = await safely(createAndStoreNote({
       content: getContent(),
-      password: getPassword(),
       ttlInSeconds: getHasNoExpiration() ? undefined : getTtlInSeconds(),
       deleteAfterReading: getDeleteAfterReading(),
       fileAssets: getUploadedFiles(),
@@ -246,13 +242,6 @@ export const CreateNotePage: Component = () => {
           </TextFieldRoot>
 
           <div class="w-full sm:w-320px flex flex-col gap-4 flex-shrink-0">
-            <TextFieldRoot class="w-full">
-              <TextFieldLabel>
-                {t('create.settings.password.label')}
-              </TextFieldLabel>
-              <NotePasswordField getPassword={getPassword} setPassword={setPassword} dataTestId="note-password" />
-            </TextFieldRoot>
-
             <TextFieldRoot class="w-full">
               <TextFieldLabel>
                 {t('create.settings.expiration')}

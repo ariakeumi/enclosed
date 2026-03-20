@@ -1,5 +1,5 @@
 import type { ServerInstance } from '../app/server.types';
-import { encryptionAlgorithms, serializationFormats } from '@enclosed/lib';
+import { serializationFormats } from '@enclosed/lib';
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { createUnauthorizedError } from '../app/auth/auth.errors';
@@ -34,7 +34,6 @@ function setupGetNoteRoute({ app }: { app: ServerInstance }) {
       const isAuthenticated = context.get('isAuthenticated');
 
       const { getNoteById } = createNoteRepository({ storage });
-
       const { note } = await getNoteById({ noteId });
 
       if (!note) {
@@ -54,12 +53,9 @@ function setupGetNoteRoute({ app }: { app: ServerInstance }) {
 
     async (context) => {
       const { noteId } = context.req.param();
-
       const storage = context.get('storage');
       const notesRepository = createNoteRepository({ storage });
-
       const { note } = await getRefreshedNote({ noteId, notesRepository });
-
       const { apiNote } = formatNoteForApi({ note });
 
       return context.json({ note: apiNote });
@@ -73,9 +69,7 @@ function setupGetNoteExistsRoute({ app }: { app: ServerInstance }) {
     async (context) => {
       const { noteId } = context.req.param();
       const storage = context.get('storage');
-
       const notesRepository = createNoteRepository({ storage });
-
       const { noteExists } = await notesRepository.getNoteExists({ noteId });
 
       return context.json({ noteExists });
@@ -96,8 +90,6 @@ function setupCreateNoteRoute({ app }: { app: ServerInstance }) {
           .max(ONE_MONTH_IN_SECONDS)
           .optional(),
 
-        // @ts-expect-error zod wants strict non empty array
-        encryptionAlgorithm: z.enum(encryptionAlgorithms),
         // @ts-expect-error zod wants strict non empty array
         serializationFormat: z.enum(serializationFormats),
 
@@ -125,12 +117,10 @@ function setupCreateNoteRoute({ app }: { app: ServerInstance }) {
     },
 
     async (context) => {
-      const { payload, ttlInSeconds, deleteAfterReading, encryptionAlgorithm, serializationFormat, isPublic } = context.req.valid('json');
+      const { payload, ttlInSeconds, deleteAfterReading, serializationFormat, isPublic } = context.req.valid('json');
       const storage = context.get('storage');
-
       const notesRepository = createNoteRepository({ storage });
-
-      const { noteId } = await notesRepository.saveNote({ payload, ttlInSeconds, deleteAfterReading, encryptionAlgorithm, serializationFormat, isPublic });
+      const { noteId } = await notesRepository.saveNote({ payload, ttlInSeconds, deleteAfterReading, serializationFormat, isPublic });
 
       return context.json({ noteId });
     },

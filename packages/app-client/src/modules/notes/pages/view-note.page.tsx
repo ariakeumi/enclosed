@@ -4,79 +4,24 @@ import { useI18n } from '@/modules/i18n/i18n.provider';
 import { isHttpErrorWithCode, isRateLimitError } from '@/modules/shared/http/http-errors';
 import { cn } from '@/modules/shared/style/cn';
 import { CopyButton } from '@/modules/shared/utils/copy';
-import { Alert, AlertDescription } from '@/modules/ui/components/alert';
 import { Button } from '@/modules/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/ui/components/card';
-import { TextField, TextFieldLabel, TextFieldRoot } from '@/modules/ui/components/textfield';
 import { formatBytes, safely, safelySync } from '@corentinth/chisels';
-import { decryptNote, noteAssetsToFiles, parseNoteUrlHashFragment } from '@enclosed/lib';
+import { noteAssetsToFiles, parseNotePayload, parseNoteUrlHashFragment } from '@enclosed/lib';
 import { useLocation, useNavigate, useParams } from '@solidjs/router';
 import JSZip from 'jszip';
-import { type Component, createSignal, type JSX, Match, onMount, Show, Switch } from 'solid-js';
+import { type Component, createSignal, type JSX, Match, onMount, Switch } from 'solid-js';
 import { fetchNoteById, fetchNoteExists } from '../notes.services';
-
-const RequestPasswordForm: Component<{ onPasswordEntered: (args: { password: string }) => void; getIsPasswordInvalid: () => boolean; setIsPasswordInvalid: (value: boolean) => void }> = (props) => {
-  const [getPassword, setPassword] = createSignal('');
-  const { t } = useI18n();
-
-  function updatePassword(text: string) {
-    setPassword(text);
-    props.setIsPasswordInvalid(false);
-  }
-
-  return (
-    <div class="sm:mt-6 p-6">
-      <Card class="w-full max-w-sm mx-auto">
-        <CardHeader>
-          <CardDescription>
-            {t('view.request-password.description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            props.onPasswordEntered({ password: getPassword() });
-          }}
-          >
-            <div>
-              <TextFieldRoot>
-                <TextFieldLabel>{t('view.request-password.form.label')}</TextFieldLabel>
-                <TextField type="password" autocomplete="new-password" placeholder={t('view.request-password.form.placeholder')} value={getPassword()} onInput={e => updatePassword(e.currentTarget.value)} autofocus data-test-id="note-password-prompt" />
-              </TextFieldRoot>
-            </div>
-            <Button class="w-full mt-4" type="submit" data-test-id="note-password-submit">
-              <div class="i-tabler-lock-open mr-2 text-lg"></div>
-              {t('view.request-password.form.unlock-button')}
-            </Button>
-          </form>
-          <Show when={props.getIsPasswordInvalid()}>
-            <Alert class="mt-4" variant="destructive">
-              <AlertDescription>
-                {t('view.request-password.form.invalid')}
-              </AlertDescription>
-            </Alert>
-          </Show>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
 
 export const ViewNotePage: Component = () => {
   const params = useParams();
   const location = useLocation();
-  const [isPasswordEntered, setIsPasswordEntered] = createSignal(false);
   const [getError, setError] = createSignal<{ title: string; description: string; action?: JSX.Element } | null>(null);
-  const [getNote, setNote] = createSignal<{ payload: string; isPasswordProtected: boolean; encryptionAlgorithm: string; serializationFormat: string } | null>(null);
-  const [getDecryptedNote, setDecryptedNote] = createSignal<string | null>(null);
-  const [getIsPasswordInvalid, setIsPasswordInvalid] = createSignal(false);
+  const [getNoteContent, setNoteContent] = createSignal<string | null>(null);
   const [fileAssets, setFileAssets] = createSignal<File[]>([]);
   const [isDownloadingAllLoading, setIsDownloadingAllLoading] = createSignal(false);
   const [getShowWarnForNoteDeletion, setShowWarnForNoteDeletion] = createSignal(false);
   const [getResolveWarnForNoteDeletion, setResolveWarnForNoteDeletion] = createSignal<(() => void) | null>(null);
-
-  const [getEncryptionKey, setEncryptionKey] = createSignal('');
-  const [getIsPasswordProtected, setIsPasswordProtected] = createSignal(false);
 
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -94,38 +39,6 @@ export const ViewNotePage: Component = () => {
     resolve?.();
   };
 
-  const decrypt = async ({ password }: { password?: string } = {}) => {
-    const { payload, encryptionAlgorithm, serializationFormat } = getNote()!;
-
-    const [decryptionResult, decryptionError] = await safely(decryptNote({
-      encryptedPayload: payload,
-      encryptionKey: getEncryptionKey(),
-      password,
-      encryptionAlgorithm: encryptionAlgorithm as 'aes-256-gcm', // TODO: export type from lib
-      serializationFormat: serializationFormat as 'cbor-array', // TODO: export type from lib
-    }));
-
-    if (decryptionError && password) {
-      setIsPasswordInvalid(true);
-      return;
-    }
-
-    if (decryptionError) {
-      setError({
-        title: t('view.error.decryption.title'),
-        description: t('view.error.decryption.description'),
-      });
-      return;
-    }
-
-    const { note } = decryptionResult;
-
-    const files = await noteAssetsToFiles({ noteAssets: note.assets });
-    setFileAssets(files);
-    setDecryptedNote(note.content);
-    setIsPasswordEntered(true);
-  };
-
   onMount(async () => {
     const [parsedHashFragment, parsingError] = safelySync(() => parseNoteUrlHashFragment({ hashFragment: location.hash }));
 
@@ -137,7 +50,7 @@ export const ViewNotePage: Component = () => {
       return;
     }
 
-    const { encryptionKey, isPasswordProtected, isDeletedAfterReading } = parsedHashFragment;
+    const { isDeletedAfterReading } = parsedHashFragment;
 
     if (isDeletedAfterReading) {
       const [noteExistsResult, noteExistsError] = await safely(fetchNoteExists({ noteId: params.noteId }));
@@ -161,17 +74,6 @@ export const ViewNotePage: Component = () => {
       }
 
       await warnForNoteDeletion();
-    }
-
-    setIsPasswordProtected(isPasswordProtected);
-    setEncryptionKey(encryptionKey);
-
-    if (!encryptionKey) {
-      setError({
-        title: t('view.error.invalid-url.title'),
-        description: t('view.error.invalid-url.description'),
-      });
-      return;
     }
 
     const [fetchedNote, fetchError] = await safely(fetchNoteById({ noteId: params.noteId }));
@@ -220,15 +122,23 @@ export const ViewNotePage: Component = () => {
       return;
     }
 
-    const { note } = fetchedNote;
+    const [parsedNote, parsingNoteError] = await safely(parseNotePayload({
+      payload: fetchedNote.note.payload,
+      serializationFormat: fetchedNote.note.serializationFormat as 'cbor-array',
+    }));
 
-    setNote(note);
-
-    if (getIsPasswordProtected()) {
+    if (parsingNoteError) {
+      setError({
+        title: t('view.error.fetch-error.title'),
+        description: t('view.error.fetch-error.description'),
+      });
       return;
     }
 
-    await decrypt();
+    const files = await noteAssetsToFiles({ noteAssets: parsedNote.note.assets });
+
+    setFileAssets(files);
+    setNoteContent(parsedNote.note.content);
   });
 
   const downloadFile = async ({ file }: { file: File }) => {
@@ -259,7 +169,6 @@ export const ViewNotePage: Component = () => {
 
   return (
     <div>
-
       <Switch
         fallback={(
           <div class="mx-auto max-w-400px text-center mt-6 flex flex-col justify-center items-center p-6 gap-2">
@@ -268,7 +177,6 @@ export const ViewNotePage: Component = () => {
           </div>
         )}
       >
-
         <Match when={getError()}>
           {error => (
             <div class="mx-auto max-w-300px text-center mt-6 flex flex-col justify-center items-center">
@@ -308,30 +216,24 @@ export const ViewNotePage: Component = () => {
           </div>
         </Match>
 
-        <Match when={getIsPasswordProtected() && !isPasswordEntered()}>
-          <RequestPasswordForm onPasswordEntered={decrypt} getIsPasswordInvalid={getIsPasswordInvalid} setIsPasswordInvalid={setIsPasswordInvalid} />
-        </Match>
-
-        <Match when={getDecryptedNote() || fileAssets().length > 0}>
-
+        <Match when={getNoteContent() !== null || fileAssets().length > 0}>
           <div class="mx-auto max-w-1200px px-6 mt-6 flex gap-4 md:flex-row-reverse flex-col justify-center min-w-0">
-            {getDecryptedNote() && (
+            {getNoteContent() && (
               <div class="flex-1 mb-4 min-w-0">
                 <div class="flex items-center gap-2 mb-4 justify-between">
                   <div class="text-muted-foreground">
                     {t('view.note-content')}
                   </div>
-                  <CopyButton text={getDecryptedNote()!} variant="secondary" />
+                  <CopyButton text={getNoteContent()!} variant="secondary" />
                 </div>
 
                 <Card class="w-full rounded-md shadow-sm mb-2">
                   <CardContent class="p-6 overflow-x-auto max-w-100%">
                     <pre data-test-id="note-content-display">
-                      {getDecryptedNote()}
+                      {getNoteContent()}
                     </pre>
                   </CardContent>
                 </Card>
-
               </div>
             )}
 

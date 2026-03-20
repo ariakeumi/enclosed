@@ -1,6 +1,6 @@
 # Enclosed CLI
 
-This package contains the CLI for [Enclosed](https://enclosed.cc), an open-source project that aims to provide a simple and secure way to share e2e encrypted notes.
+This package contains the CLI for [Enclosed](https://enclosed.cc), an open-source project for quickly sharing private notes and files.
 
 ## Getting Started
 
@@ -16,7 +16,7 @@ enclosed create "Hello, World!"
 cat file.txt | enclosed create
 
 # With full options
-enclosed create --deleteAfterReading --password "password" --ttl 3600 "Hello, World!"
+enclosed create --deleteAfterReading --ttl 3600 "Hello, World!"
 ```
 
 ### Configure the enclosed instance to use
@@ -47,7 +47,7 @@ cat file.txt | enclosed create -s
 enclosed create --file file1.txt --file file2.txt "Hello, World!"
 
 # With full options
-enclosed create --file file1.txt --deleteAfterReading --password "password" --ttl 3600 "Hello, World!"
+enclosed create --file file1.txt --deleteAfterReading --ttl 3600 "Hello, World!"
 
 # Get more information about the command
 enclosed create --help
@@ -58,11 +58,7 @@ enclosed create -h
 ### View a note
 
 ```bash
-# The password will be prompted if the note is password-protected
 enclosed view <note-url>
-
-# Or you can provide the password directly
-enclosed view --password "password" <note-url>
 ```
 
 ### Configure the enclosed instance to use

@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.16.0",
   "packageManager": "pnpm@9.15.0",
-  "description": "Enclosed lib to create secure notes.",
+  "description": "Enclosed lib to create and share notes.",
   "author": "Corentin Thomasset <corentinth@proton.me> (https://corentin.tech)",
   "license": "Apache-2.0",
   "repository": {

@@ -7,16 +7,14 @@ describe('e2e', () => {
   describe('create and view note with authentication disabled (public instance)', () => {
     test('a note can be created and viewed', async () => {
       const { storage } = createMemoryStorage();
-
       const { app } = createServer({
         storageFactory: () => ({ storage }),
       });
 
       const note = {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         deleteAfterReading: false,
         ttlInSeconds: 600,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
       };
 
@@ -43,15 +41,13 @@ describe('e2e', () => {
       const { note: retrievedNote } = await viewNoteResponse.json<any>();
 
       expect(omit(retrievedNote, 'expirationDate')).to.eql({
-        payload: '<encrypted-content>',
-        encryptionAlgorithm: 'aes-256-gcm',
+        payload: '<serialized-content>',
         serializationFormat: 'cbor-array',
       });
     });
 
     test('an enregistered serialization format results in a bad request', async () => {
       const { storage } = createMemoryStorage();
-
       const { app } = createServer({
         storageFactory: () => ({ storage }),
       });
@@ -61,11 +57,10 @@ describe('e2e', () => {
         {
           method: 'POST',
           body: JSON.stringify({
-            payload: '<encrypted-content>',
+            payload: '<serialized-content>',
             deleteAfterReading: false,
             ttlInSeconds: 600,
-            encryptionAlgorithm: 'aes-256-gcm',
-            serializationFormat: 'foo', // <- invalid serialization format
+            serializationFormat: 'foo',
           }),
           headers: new Headers({ 'Content-Type': 'application/json' }),
         },
@@ -86,46 +81,8 @@ describe('e2e', () => {
       });
     });
 
-    test('a note with an invalid encryption algorithm results in a bad request', async () => {
-      const { storage } = createMemoryStorage();
-
-      const { app } = createServer({
-        storageFactory: () => ({ storage }),
-      });
-
-      const response = await app.request(
-        '/api/notes',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            payload: '<encrypted-content>',
-            deleteAfterReading: false,
-            ttlInSeconds: 600,
-            encryptionAlgorithm: 'foo', // <- invalid encryption algorithm
-            serializationFormat: 'cbor-array',
-          }),
-          headers: new Headers({ 'Content-Type': 'application/json' }),
-        },
-      );
-
-      expect(response.status).to.eql(400);
-      expect(await response.json()).to.eql({
-        error: {
-          code: 'server.invalid_request.body',
-          message: 'Invalid request body',
-          details: [
-            {
-              message: 'Invalid enum value. Expected \'aes-256-gcm\', received \'foo\'',
-              path: 'encryptionAlgorithm',
-            },
-          ],
-        },
-      });
-    });
-
     test('on a public instance we cannot create a non-public note', async () => {
       const { storage } = createMemoryStorage();
-
       const { app } = createServer({
         storageFactory: () => ({ storage }),
       });
@@ -135,12 +92,11 @@ describe('e2e', () => {
         {
           method: 'POST',
           body: JSON.stringify({
-            payload: '<encrypted-content>',
+            payload: '<serialized-content>',
             deleteAfterReading: false,
             ttlInSeconds: 600,
-            encryptionAlgorithm: 'aes-256-gcm',
             serializationFormat: 'cbor-array',
-            isPublic: false, // <- non-public note
+            isPublic: false,
           }),
           headers: new Headers({ 'Content-Type': 'application/json' }),
         },

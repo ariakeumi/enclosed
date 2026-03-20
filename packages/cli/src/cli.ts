@@ -6,7 +6,7 @@ import { viewNoteCommand } from './view-note/view-note.command';
 const main = defineCommand({
   meta: {
     name: 'enclosed',
-    description: 'Create and view private and secure notes',
+    description: 'Create and view private notes',
   },
   subCommands: {
     create: createNoteCommand,

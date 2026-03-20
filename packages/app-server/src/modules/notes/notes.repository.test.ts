@@ -9,23 +9,22 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { getNoteById } = createNoteRepository({ storage });
-
       const { note } = await getNoteById({ noteId: 'note-1' });
 
       expect(note).to.eql({
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: new Date('2024-01-01T00:01:00.000Z'),
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
     });
 
@@ -33,11 +32,11 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { getNoteById } = createNoteRepository({ storage });
@@ -51,23 +50,22 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       storage.setItem('note-2', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { getNotesIds } = createNoteRepository({ storage });
-
       const { noteIds } = await getNotesIds();
 
       expect(noteIds).to.eql(['note-1', 'note-2']);
@@ -75,9 +73,7 @@ describe('notes repository', () => {
 
     test('returns an empty list of ids when there are no notes in storage', async () => {
       const { storage } = createMemoryStorage();
-
       const { getNotesIds } = createNoteRepository({ storage });
-
       const { noteIds } = await getNotesIds();
 
       expect(noteIds).to.eql([]);
@@ -87,11 +83,11 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: true,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { getNotesIds } = createNoteRepository({ storage });
@@ -109,19 +105,19 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       storage.setItem('note-2', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { deleteNoteById } = createNoteRepository({ storage });
@@ -135,7 +131,6 @@ describe('notes repository', () => {
 
     test('when trying to delete a note that does not exist, no error is raised', async () => {
       const { storage } = createMemoryStorage();
-
       const { deleteNoteById } = createNoteRepository({ storage });
 
       await deleteNoteById({ noteId: 'note-1' });
@@ -148,18 +143,16 @@ describe('notes repository', () => {
     test('store a note in storage with its content and metadata', async () => {
       const { storage } = createMemoryStorage();
       let noteIdIndex = 1;
-
       const { saveNote } = createNoteRepository({ storage });
 
       expect(await storage.getKeys()).to.eql([]);
 
       const { noteId } = await saveNote({
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         ttlInSeconds: 60,
         deleteAfterReading: false,
         generateNoteId: () => `note-${noteIdIndex++}`,
         now: new Date('2024-01-01T00:00:00.000Z'),
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
         isPublic: true,
       });
@@ -168,10 +161,9 @@ describe('notes repository', () => {
       expect(await storage.getKeys()).to.eql(['note-1']);
 
       expect(await storage.getItem<any>('note-1')).to.eql({
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
         isPublic: true,
       });
@@ -181,9 +173,8 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       await storage.setItem('taken-id', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
         isPublic: true,
       });
@@ -192,12 +183,11 @@ describe('notes repository', () => {
       const { saveNote } = createNoteRepository({ storage });
 
       const { noteId } = await saveNote({
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         ttlInSeconds: 60,
         deleteAfterReading: false,
         generateNoteId: () => generatedIds.shift() ?? 'unexpected-id',
         now: new Date('2024-01-01T00:00:00.000Z'),
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
         isPublic: true,
       });
@@ -212,11 +202,11 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: false,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { getNoteExists } = createNoteRepository({ storage });
@@ -229,11 +219,11 @@ describe('notes repository', () => {
       const { storage } = createMemoryStorage();
 
       storage.setItem('note-1', {
-        payload: '<encrypted-content>',
+        payload: '<serialized-content>',
         expirationDate: '2024-01-01T00:01:00.000Z',
         deleteAfterReading: true,
-        encryptionAlgorithm: 'aes-256-gcm',
         serializationFormat: 'cbor-array',
+        isPublic: true,
       });
 
       const { getNoteExists } = createNoteRepository({ storage });

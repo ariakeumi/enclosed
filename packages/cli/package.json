@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.16.0",
   "packageManager": "pnpm@9.15.0",
-  "description": "Enclosed cli to create secure notes.",
+  "description": "Enclosed cli to create and view notes.",
   "author": "Corentin Thomasset <corentinth@proton.me> (https://corentin.tech)",
   "license": "Apache-2.0",
   "repository": {
@@ -34,7 +34,6 @@
   },
   "dependencies": {
     "@enclosed/lib": "workspace:*",
-    "@inquirer/prompts": "^6.0.0",
     "citty": "^0.1.6",
     "conf": "^13.0.1",
     "lodash-es": "^4.17.21",

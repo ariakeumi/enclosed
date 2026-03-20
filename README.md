@@ -10,7 +10,7 @@
   Enclosed - Send private and secure notes
 </h1>
 <p align="center">
-  Minimalistic web application designed for sending end-to-end encrypted notes and files.
+  Minimalistic web application designed for sharing private notes and files.
 </p>
 
 <p align="center">
@@ -25,9 +25,9 @@
 
 ## Introduction
 
-**Enclosed** is a minimalistic web application designed for sending private and secure notes.
+**Enclosed** is a minimalistic web application designed for sending private notes and files.
 
-All notes are end-to-end encrypted, ensuring that the server and storage have zero knowledge of the content. Users can set a password, define an expiration period (TTL), and choose to have the note self-destruct after being read.
+Users can define an expiration period (TTL), attach files, and choose to have the note self-destruct after being read.
 
 A live instance is available at [enclosed.cc](https://enclosed.cc).
 
@@ -35,10 +35,9 @@ A live instance is available at [enclosed.cc](https://enclosed.cc).
 
 ## Features
 
-- **End-to-End Encryption**: Your notes are encrypted on the client side, using AES-GCM with a 256-bit key derived using PBKDF2.
-- **File Attachments**: Share files securely with your notes.
-- **Zero Knowledge**: The server does not have access to the content of the notes or files.
-- **Configurable Security Options**: Set a password, expiration time, and choose self-destruction after the note is read.
+- **File Attachments**: Share files alongside your notes.
+- **Configurable Lifetime**: Set an expiration time and choose self-destruction after the note is read.
+- **Short Share Links**: Notes use short IDs that are easier to copy and share.
 - **Minimalistic UI**: Simple and intuitive user interface for quick note sharing.
 - **i18n Support**: Available in multiple languages.
 - **Authentication**: Optional email/password authentication to create notes.
@@ -114,21 +113,15 @@ You can refer to the [configuration documentation](https://docs.enclosed.cc/self
 
 ## How It Works
 
-1. **Note Creation**: A user creates a note with some content and optionally sets a password.
-2. **Key Generation**: A **base key** is generated on the client side to ensure encryption, even if no password is set.
-3. **Master Key Derivation**: A **master key** is derived from the base key and the optional password using **PBKDF2 with SHA-256**.
-4. **Note Encryption**: The note is encrypted using the master key with **AES-GCM** encryption.
-5. **Sending to Server**: The encrypted note is sent to the server along with some metadata (ttl, is the note password-protected, should it self-destruct after reading).
-6. **Storage and ID Assignment**: The server stores the encrypted note and provides an **ID** for it.
-7. **Link Generation**: A **link** is generated that includes the note ID and the base key (included as a URL hash fragment to maximize security since hashes are not sent to the server).
-8. **Link Sharing**: The link is shared with the intended recipient.
-9. **Note Retrieval**: The recipient opens the link, and the app fetches the encrypted note and metadata from the server using the note ID.
-10. **Key Extraction**: The base key is extracted from the URL hash fragment.
-11. **Password Prompt (If Applicable)**: If the note is password-protected, the recipient is prompted to enter the password.
-12. **Master Key Derivation**: The master key is derived from the base key and the entered password using **PBKDF2 with SHA-256**.
-13. **Note Decryption**: The note is decrypted using the master key with **AES-GCM** and can now be read by the recipient.
-
-This ensures that the note remains securely encrypted during transmission and storage, with decryption only possible by those with the correct link and (if applicable) password.
+1. **Note Creation**: A user creates a note, optionally adds files, and chooses its lifetime.
+2. **Payload Serialization**: The browser serializes the note content and attachments into a compact payload.
+3. **Sending to Server**: The payload and note metadata are sent to the server.
+4. **Storage and ID Assignment**: The server stores the note payload and provides a short **ID**.
+5. **Link Generation**: A shareable **link** is generated from the note ID, with an optional `#dar` fragment for delete-after-reading notes.
+6. **Link Sharing**: The link is shared with the intended recipient.
+7. **Note Retrieval**: The recipient opens the link, and the app fetches the stored payload using the note ID.
+8. **Payload Parsing**: The browser parses the payload back into note content and attached files.
+9. **Optional Destruction**: Notes marked for delete-after-reading are removed after a successful read.
 
 ## CLI
 
@@ -157,17 +150,13 @@ enclosed create "Hello, World!"
 cat file.txt | enclosed create
 
 # With full options
-enclosed create --deleteAfterReading --password "password" --ttl 3600 "Hello, World!"
+enclosed create --deleteAfterReading --ttl 3600 "Hello, World!"
 ```
 
 ### View a note
 
 ```bash
-# The password will be prompted if the note is password-protected
 enclosed view <note-url>
-
-# Or you can provide the password directly
-enclosed view --password "password" <note-url>
 ```
 
 ### Configure the enclosed instance to use

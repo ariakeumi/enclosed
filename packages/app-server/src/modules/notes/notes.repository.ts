@@ -40,7 +40,6 @@ async function saveNote(
     storage,
     generateNoteId = generateId,
     now = new Date(),
-    encryptionAlgorithm,
     serializationFormat,
     isPublic,
   }:
@@ -51,7 +50,6 @@ async function saveNote(
     storage: Storage<DatabaseNote>;
     generateNoteId?: () => string;
     now?: Date;
-    encryptionAlgorithm: string;
     serializationFormat: string;
     isPublic: boolean;
   },
@@ -61,7 +59,6 @@ async function saveNote(
     const baseNote = {
       payload,
       deleteAfterReading,
-      encryptionAlgorithm,
       serializationFormat,
       isPublic,
     };
@@ -81,7 +78,7 @@ async function saveNote(
         expirationDate: expirationDate.toISOString(),
       },
       {
-      // Some storage drivers have a different API for setting TTLs
+        // Some storage drivers have a different API for setting TTLs
         ttl: ttlInSeconds,
         // Cloudflare KV Binding - https://developers.cloudflare.com/kv/api/write-key-value-pairs/#create-expiring-keys
         expirationTtl: ttlInSeconds,
