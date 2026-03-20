@@ -4,6 +4,7 @@ import { useI18n } from '@/modules/i18n/i18n.provider';
 import { isHttpErrorWithCode, isRateLimitError } from '@/modules/shared/http/http-errors';
 import { cn } from '@/modules/shared/style/cn';
 import { CopyButton } from '@/modules/shared/utils/copy';
+import { Alert, AlertDescription } from '@/modules/ui/components/alert';
 import { Button } from '@/modules/ui/components/button';
 import { Card, CardContent } from '@/modules/ui/components/card';
 import { formatBytes, safely } from '@corentinth/chisels';
@@ -18,6 +19,7 @@ export const ViewNotePage: Component = () => {
   const location = useLocation();
   const [getError, setError] = createSignal<{ title: string; description: string; action?: JSX.Element } | null>(null);
   const [getNoteContent, setNoteContent] = createSignal<string | null>(null);
+  const [getDeleteAfterReading, setDeleteAfterReading] = createSignal(false);
   const [fileAssets, setFileAssets] = createSignal<File[]>([]);
   const [isDownloadingAllLoading, setIsDownloadingAllLoading] = createSignal(false);
 
@@ -86,6 +88,7 @@ export const ViewNotePage: Component = () => {
 
     const files = await noteAssetsToFiles({ noteAssets: parsedNote.note.assets });
 
+    setDeleteAfterReading(fetchedNote.note.deleteAfterReading);
     setFileAssets(files);
     setNoteContent(parsedNote.note.content);
   });
@@ -152,6 +155,17 @@ export const ViewNotePage: Component = () => {
                   </div>
                   <CopyButton text={getNoteContent()!} variant="secondary" />
                 </div>
+
+                <Match when={getDeleteAfterReading()}>
+                  <Alert variant="destructive" class="mb-4">
+                    <div class="i-tabler-alert-triangle" />
+                    <AlertDescription>
+                      <span class="font-medium">{t('view.warn-for-note-deletion.title')}</span>
+                      {' '}
+                      {t('view.warn-for-note-deletion.description')}
+                    </AlertDescription>
+                  </Alert>
+                </Match>
 
                 <Card class="w-full rounded-md shadow-sm mb-2">
                   <CardContent class="p-6 overflow-x-auto max-w-100%">

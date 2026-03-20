@@ -19,6 +19,7 @@ test('Can create and view a note', async ({ page }) => {
   expect(noteUrl.includes('#')).toBe(false);
 
   await page.goto(noteUrl);
+  await expect(page.getByText('This note will be deleted')).toBeVisible();
 
   const noteContent = await page.getByTestId('note-content-display').textContent();
 

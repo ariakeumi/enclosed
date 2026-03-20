@@ -42,6 +42,7 @@ describe('e2e', () => {
 
       expect(omit(retrievedNote, 'expirationDate')).to.eql({
         payload: '<serialized-content>',
+        deleteAfterReading: false,
         serializationFormat: 'cbor-array',
       });
     });

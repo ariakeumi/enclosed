@@ -35,7 +35,7 @@ describe('notes models', () => {
   });
 
   describe('formatNoteForApi', () => {
-    test('the expiration date and internal flags are omitted when formatting a note for the API', () => {
+    test('the expiration date and internal-only visibility flag are omitted when formatting a note for the API', () => {
       const storedNote = {
         payload: '<serialized-content>',
         expirationDate: new Date('2024-01-01T00:00:00Z'),
@@ -47,6 +47,7 @@ describe('notes models', () => {
       expect(formatNoteForApi({ note: storedNote })).to.eql({
         apiNote: {
           payload: '<serialized-content>',
+          deleteAfterReading: false,
           serializationFormat: 'cbor-array',
         },
       });

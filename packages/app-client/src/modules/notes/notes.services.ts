@@ -33,6 +33,7 @@ async function storeNote({
 async function fetchNoteById({ noteId }: { noteId: string }) {
   const { note } = await apiClient<{ note: {
     payload: string;
+    deleteAfterReading: boolean;
     serializationFormat: string;
   }; }>({
     path: `/api/notes/${noteId}`,
