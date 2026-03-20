@@ -5,13 +5,13 @@ import { isHttpErrorWithCode, isRateLimitError } from '@/modules/shared/http/htt
 import { cn } from '@/modules/shared/style/cn';
 import { CopyButton } from '@/modules/shared/utils/copy';
 import { Button } from '@/modules/ui/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/ui/components/card';
-import { formatBytes, safely, safelySync } from '@corentinth/chisels';
-import { noteAssetsToFiles, parseNotePayload, parseNoteUrlHashFragment } from '@enclosed/lib';
+import { Card, CardContent } from '@/modules/ui/components/card';
+import { formatBytes, safely } from '@corentinth/chisels';
+import { noteAssetsToFiles, parseNotePayload } from '@enclosed/lib';
 import { useLocation, useNavigate, useParams } from '@solidjs/router';
 import JSZip from 'jszip';
 import { type Component, createSignal, type JSX, Match, onMount, Switch } from 'solid-js';
-import { fetchNoteById, fetchNoteExists } from '../notes.services';
+import { fetchNoteById } from '../notes.services';
 
 export const ViewNotePage: Component = () => {
   const params = useParams();
@@ -20,62 +20,11 @@ export const ViewNotePage: Component = () => {
   const [getNoteContent, setNoteContent] = createSignal<string | null>(null);
   const [fileAssets, setFileAssets] = createSignal<File[]>([]);
   const [isDownloadingAllLoading, setIsDownloadingAllLoading] = createSignal(false);
-  const [getShowWarnForNoteDeletion, setShowWarnForNoteDeletion] = createSignal(false);
-  const [getResolveWarnForNoteDeletion, setResolveWarnForNoteDeletion] = createSignal<(() => void) | null>(null);
 
   const { t } = useI18n();
   const navigate = useNavigate();
 
-  const warnForNoteDeletion = async () => {
-    setShowWarnForNoteDeletion(true);
-    return new Promise<void>((resolve) => {
-      setResolveWarnForNoteDeletion(() => resolve);
-    });
-  };
-
-  const acceptWarnForNoteDeletion = () => {
-    setShowWarnForNoteDeletion(false);
-    const resolve = getResolveWarnForNoteDeletion();
-    resolve?.();
-  };
-
   onMount(async () => {
-    const [parsedHashFragment, parsingError] = safelySync(() => parseNoteUrlHashFragment({ hashFragment: location.hash }));
-
-    if (parsingError) {
-      setError({
-        title: t('view.error.invalid-url.title'),
-        description: t('view.error.invalid-url.description'),
-      });
-      return;
-    }
-
-    const { isDeletedAfterReading } = parsedHashFragment;
-
-    if (isDeletedAfterReading) {
-      const [noteExistsResult, noteExistsError] = await safely(fetchNoteExists({ noteId: params.noteId }));
-
-      if (noteExistsError) {
-        setError({
-          title: t('view.error.fetch-error.title'),
-          description: t('view.error.fetch-error.description'),
-        });
-        return;
-      }
-
-      const { noteExists } = noteExistsResult;
-
-      if (!noteExists) {
-        setError({
-          title: t('view.error.note-not-found.title'),
-          description: t('view.error.note-not-found.description'),
-        });
-        return;
-      }
-
-      await warnForNoteDeletion();
-    }
-
     const [fetchedNote, fetchError] = await safely(fetchNoteById({ noteId: params.noteId }));
 
     if (isRateLimitError({ error: fetchError })) {
@@ -191,29 +140,6 @@ export const ViewNotePage: Component = () => {
               {error().action}
             </div>
           )}
-        </Match>
-
-        <Match when={getShowWarnForNoteDeletion()}>
-          <div class="sm:mt-6 p-6">
-            <Card class="w-full max-w-sm mx-auto">
-              <CardHeader>
-                <CardTitle class="text-base font-semibold">
-                  {t('view.warn-for-note-deletion.title')}
-                </CardTitle>
-                <CardDescription>
-                  {t('view.warn-for-note-deletion.description')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div class="flex gap-4">
-                  <Button onClick={acceptWarnForNoteDeletion} class="w-full" data-test-id="note-deletion-accept">
-                    {t('view.warn-for-note-deletion.confirm')}
-                    <div class="i-tabler-arrow-right ml-2 text-lg"></div>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </Match>
 
         <Match when={getNoteContent() !== null || fileAssets().length > 0}>

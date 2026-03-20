@@ -16,9 +16,9 @@ test('Can create and view a note', async ({ page }) => {
   const noteUrl = await page.getByTestId('note-url').inputValue();
 
   expect(noteUrl).toBeDefined();
+  expect(noteUrl.includes('#')).toBe(false);
 
   await page.goto(noteUrl);
-  await page.getByTestId('note-deletion-accept').click();
 
   const noteContent = await page.getByTestId('note-content-display').textContent();
 

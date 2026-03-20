@@ -117,7 +117,7 @@ You can refer to the [configuration documentation](https://docs.enclosed.cc/self
 2. **Payload Serialization**: The browser serializes the note content and attachments into a compact payload.
 3. **Sending to Server**: The payload and note metadata are sent to the server.
 4. **Storage and ID Assignment**: The server stores the note payload and provides a short **ID**.
-5. **Link Generation**: A shareable **link** is generated from the note ID, with an optional `#dar` fragment for delete-after-reading notes.
+5. **Link Generation**: A shareable **link** is generated from the note ID.
 6. **Link Sharing**: The link is shared with the intended recipient.
 7. **Note Retrieval**: The recipient opens the link, and the app fetches the stored payload using the note ID.
 8. **Payload Parsing**: The browser parses the payload back into note content and attached files.

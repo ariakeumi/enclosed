@@ -197,43 +197,4 @@ describe('notes repository', () => {
     });
   });
 
-  describe('getNoteExists', () => {
-    test('test the presence of a note in storage by its id', async () => {
-      const { storage } = createMemoryStorage();
-
-      storage.setItem('note-1', {
-        payload: '<serialized-content>',
-        expirationDate: '2024-01-01T00:01:00.000Z',
-        deleteAfterReading: false,
-        serializationFormat: 'cbor-array',
-        isPublic: true,
-      });
-
-      const { getNoteExists } = createNoteRepository({ storage });
-
-      expect(await getNoteExists({ noteId: 'note-1' })).to.eql({ noteExists: true });
-      expect(await getNoteExists({ noteId: 'note-2' })).to.eql({ noteExists: false });
-    });
-
-    test('when checking the existence of a note, it does not delete it from storage, even if marked for deletion after reading', async () => {
-      const { storage } = createMemoryStorage();
-
-      storage.setItem('note-1', {
-        payload: '<serialized-content>',
-        expirationDate: '2024-01-01T00:01:00.000Z',
-        deleteAfterReading: true,
-        serializationFormat: 'cbor-array',
-        isPublic: true,
-      });
-
-      const { getNoteExists } = createNoteRepository({ storage });
-
-      expect(await getNoteExists({ noteId: 'note-1' })).to.eql({ noteExists: true });
-      expect(await getNoteExists({ noteId: 'note-1' })).to.eql({ noteExists: true });
-
-      const noteIds = await storage.getKeys();
-
-      expect(noteIds).to.eql(['note-1']);
-    });
-  });
 });

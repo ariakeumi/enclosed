@@ -53,7 +53,6 @@ async function createNote({
   const { noteUrl } = createNoteUrl({
     noteId,
     clientBaseUrl,
-    isDeletedAfterReading: deleteAfterReading,
     pathPrefix,
   });
 

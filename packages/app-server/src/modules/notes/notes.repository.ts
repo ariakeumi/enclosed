@@ -18,7 +18,6 @@ function createNoteRepository({ storage }: { storage: Storage }) {
       getNoteById,
       getNotesIds,
       deleteNoteById,
-      getNoteExists,
     },
     {
       storage,
@@ -78,9 +77,7 @@ async function saveNote(
         expirationDate: expirationDate.toISOString(),
       },
       {
-        // Some storage drivers have a different API for setting TTLs
         ttl: ttlInSeconds,
-        // Cloudflare KV Binding - https://developers.cloudflare.com/kv/api/write-key-value-pairs/#create-expiring-keys
         expirationTtl: ttlInSeconds,
       },
     );
@@ -133,10 +130,4 @@ async function getNoteById({ noteId, storage }: { noteId: string; storage: Stora
 
 async function deleteNoteById({ noteId, storage }: { noteId: string; storage: Storage }) {
   await storage.removeItem(noteId, { removeMeta: true });
-}
-
-async function getNoteExists({ noteId, storage }: { noteId: string; storage: Storage }) {
-  const noteExists = await storage.hasItem(noteId);
-
-  return { noteExists };
 }

@@ -11,14 +11,6 @@ describe('note models', () => {
       });
     });
 
-    test('a note deleted after reading is indicated in the hash fragment', () => {
-      expect(
-        createNoteUrl({ noteId: '123', clientBaseUrl: 'https://example.com', isDeletedAfterReading: true }),
-      ).to.eql({
-        noteUrl: 'https://example.com/123#dar',
-      });
-    });
-
     test('trailing slash in the base url is handled', () => {
       expect(
         createNoteUrl({ noteId: '123', clientBaseUrl: 'https://example.com/' }),
@@ -58,15 +50,6 @@ describe('note models', () => {
       });
     });
 
-    test('a note that is deleted after reading is indicated in the hash fragment', () => {
-      expect(
-        parseNoteUrl({ noteUrl: 'https://example.com/123#dar' }),
-      ).to.eql({
-        noteId: '123',
-        isDeletedAfterReading: true,
-      });
-    });
-
     test('trailing slash in the base url is handled', () => {
       expect(
         parseNoteUrl({ noteUrl: 'https://example.com/123/' }),
@@ -85,74 +68,34 @@ describe('note models', () => {
       });
     });
 
-    test('throws an error if the url has no note id or an invalid hash fragment', () => {
+    test('throws an error if the url has no note id', () => {
       expect(() => {
         parseNoteUrl({ noteUrl: 'https://example.com/' });
       }).to.throw('Invalid note url');
-
-      expect(() => {
-        parseNoteUrl({ noteUrl: 'https://example.com/123#foo' });
-      }).to.throw('Invalid hash fragment');
     });
   });
 
   describe('creation + parsing', () => {
     test('a note url can be parsed back to its original parts', () => {
-      const { noteUrl } = createNoteUrl({ noteId: '123', clientBaseUrl: 'https://example.com', isDeletedAfterReading: true });
+      const { noteUrl } = createNoteUrl({ noteId: '123', clientBaseUrl: 'https://example.com' });
       const { noteId, isDeletedAfterReading } = parseNoteUrl({ noteUrl });
 
       expect(noteId).to.equal('123');
-      expect(isDeletedAfterReading).to.equal(true);
+      expect(isDeletedAfterReading).to.equal(false);
     });
   });
 
   describe('createNoteUrlHashFragment', () => {
-    test('returns nothing when the note is not deleted after reading', () => {
-      expect(
-        createNoteUrlHashFragment({}),
-      ).to.equal(undefined);
-    });
-
-    test('indicates that the note is deleted after reading', () => {
-      expect(
-        createNoteUrlHashFragment({ isDeletedAfterReading: true }),
-      ).to.equal('dar');
+    test('no extra hash fragment is generated', () => {
+      expect(createNoteUrlHashFragment()).to.equal(undefined);
     });
   });
 
   describe('parseNoteUrlHashFragment', () => {
-    test('an empty hash fragment means the note is not deleted after reading', () => {
-      expect(
-        parseNoteUrlHashFragment({ hashFragment: '' }),
-      ).to.eql({
+    test('hash fragments are ignored', () => {
+      expect(parseNoteUrlHashFragment()).to.eql({
         isDeletedAfterReading: false,
       });
-
-      expect(
-        parseNoteUrlHashFragment({ hashFragment: '#' }),
-      ).to.eql({
-        isDeletedAfterReading: false,
-      });
-    });
-
-    test('the fragment can indicate that the note is deleted after reading', () => {
-      expect(
-        parseNoteUrlHashFragment({ hashFragment: 'dar' }),
-      ).to.eql({
-        isDeletedAfterReading: true,
-      });
-
-      expect(
-        parseNoteUrlHashFragment({ hashFragment: '#dar' }),
-      ).to.eql({
-        isDeletedAfterReading: true,
-      });
-    });
-
-    test('throws when the fragment is invalid', () => {
-      expect(() => {
-        parseNoteUrlHashFragment({ hashFragment: 'foo' });
-      }).to.throw('Invalid hash fragment');
     });
   });
 });
