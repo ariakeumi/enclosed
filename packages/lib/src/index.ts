@@ -4,7 +4,7 @@ import { filesToNoteAssets, fileToNoteAsset, noteAssetsToFiles, noteAssetToFile 
 import { createNoteUrl, createNoteUrlHashFragment, parseNoteUrl, parseNoteUrlHashFragment } from './notes/notes.models';
 import { parseNotePayload, serializeNotePayload } from './notes/notes.payload';
 import { fetchNote, storeNote } from './notes/notes.services';
-import { createNote } from './notes.usecases';
+import { createNote } from './notes/notes.usecases';
 
 export {
   createNote,
