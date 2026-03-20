@@ -13,6 +13,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "postinstall": "pnpm run build:worker",
     "build:worker": "pnpm --filter @enclosed/app-server --fail-if-no-match build:worker",
     "deploy:worker": "pnpm --filter @enclosed/app-server --fail-if-no-match deploy:worker",
     "preview:worker": "pnpm --filter @enclosed/app-server --fail-if-no-match preview:worker",

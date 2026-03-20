@@ -72,7 +72,7 @@ For example:
 
 The application can also be deployed as a serverless Cloudflare Workers app backed by Cloudflare KV.
 
-1. Create a KV namespace and update the `notes` binding in [`packages/app-server/wrangler.toml`](./packages/app-server/wrangler.toml).
+1. Create a KV namespace and update the `notes` binding in [`wrangler.toml`](./wrangler.toml).
 2. Build the client assets and the Worker bundle:
 
 ```bash
@@ -91,18 +91,22 @@ The Worker serves `/api/*`, while the static frontend is served through Workers 
 #### Deploy with GitHub integration
 
 You can also deploy the Worker by connecting the repository directly in Cloudflare Workers Builds.
+The repository includes a root [`wrangler.toml`](./wrangler.toml), so the default root-level `npx wrangler deploy` flow works without having to target a nested workspace manually.
 
 Recommended settings for this repository:
 
-- Worker name: `enclosed-app` (must match the `name` value in `packages/app-server/wrangler.toml`)
-- Root directory: optional
+- Worker name: `enclosed-app` (must match the `name` value in [`wrangler.toml`](./wrangler.toml))
+- Root directory: repository root
+- Build command: optional
+- Deploy command: optional
+
+If you prefer explicit commands, these also work from the repository root:
+
 - Build command: `pnpm run build:worker`
 - Deploy command: `pnpm run deploy:worker`
 - Non-production branch deploy command: `pnpm run preview:worker`
 
-These commands are safe to run from the monorepo root, which avoids Wrangler workspace auto-detection issues in Cloudflare Workers Builds.
-
-Before enabling automatic deployments on your own Cloudflare account, make sure the `notes` KV binding in `packages/app-server/wrangler.toml` points to a KV namespace you control, or replace it during your first setup.
+Before enabling automatic deployments on your own Cloudflare account, make sure the `notes` KV binding in [`wrangler.toml`](./wrangler.toml) points to a KV namespace you control, or replace it during your first setup.
 
 ### Configuration
 
@@ -179,7 +183,6 @@ This project is organized as a monorepo using `pnpm` workspaces. The structure i
 
 - **[packages/app-client](./packages/app-client/)**: Frontend application built with SolidJS.
 - **[packages/app-server](./packages/app-server/)**: Backend application using HonoJS, with both Node and Cloudflare Workers entrypoints.
-- **[packages/deploy-cloudflare](./packages/deploy-cloudflare/)**: Legacy Cloudflare Pages build scripts.
 - **[packages/lib](./packages/lib/)**: Core functionalities of Enclosed.
 - **[packages/cli](./packages/cli/)**: Command-line interface for Enclosed.
 

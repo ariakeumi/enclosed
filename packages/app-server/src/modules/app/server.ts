@@ -6,7 +6,6 @@ import { secureHeaders } from 'hono/secure-headers';
 import { registerNotesRoutes } from '../notes/notes.routes';
 import { authenticationMiddleware } from './auth/auth.middleware';
 import { registerAuthRoutes } from './auth/auth.routes';
-import { registerConfigRoutes } from './config/config.routes';
 import { createConfigMiddleware } from './middlewares/config.middleware';
 import { corsMiddleware } from './middlewares/cors.middleware';
 import { registerErrorMiddleware } from './middlewares/errors.middleware';
@@ -30,7 +29,6 @@ function createServer({ config, storageFactory }: { config?: Config; storageFact
   registerErrorMiddleware({ app });
 
   registerAuthRoutes({ app });
-  registerConfigRoutes({ app });
   registerNotesRoutes({ app });
 
   app.get('/api/ping', context => context.json({ status: 'ok' }));

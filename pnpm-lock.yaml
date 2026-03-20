@@ -159,9 +159,6 @@ importers:
       pino:
         specifier: ^9.3.2
         version: 9.6.0
-      ulid-workers:
-        specifier: ^2.1.0
-        version: 2.1.0
       unstorage:
         specifier: ^1.10.2
         version: 1.15.0
@@ -306,9 +303,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.7.4)(jsdom@26.0.0)(less@4.2.2)(terser@5.32.0)
-
-  packages/deploy-cloudflare: {}
-
   packages/docs:
     dependencies:
       bcryptjs:
@@ -5401,9 +5395,6 @@ packages:
   uint8array-extras@1.4.0:
     resolution: {integrity: sha512-ZPtzy0hu4cZjv3z5NW9gfKnNLjoz4y6uv4HlelAjDK7sY/xOkKZv9xK/WQpcsBB3jEybChz9DPC2U/+cusjJVQ==}
     engines: {node: '>=18'}
-
-  ulid-workers@2.1.0:
-    resolution: {integrity: sha512-D4+5fwPt5FEoGdMQtx5YwRHUZ4SDWSypraDZiXT3Y8U7T0C6h99dXhpWJQScNckoVRU+zi+BDuoBKHAffrn9vg==}
 
   unbuild@2.0.0:
     resolution: {integrity: sha512-JWCUYx3Oxdzvw2J9kTAp+DKE8df/BnH/JTSj6JyA4SH40ECdFu7FoJJcrm8G92B7TjofQ6GZGjJs50TRxoH6Wg==}
@@ -11165,8 +11156,6 @@ snapshots:
   ufo@1.5.4: {}
 
   uint8array-extras@1.4.0: {}
-
-  ulid-workers@2.1.0: {}
 
   unbuild@2.0.0(typescript@5.8.2):
     dependencies:
