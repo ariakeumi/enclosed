@@ -11,7 +11,7 @@ import { formatBytes, safely } from '@corentinth/chisels';
 import { noteAssetsToFiles, parseNotePayload } from '@enclosed/lib';
 import { useLocation, useNavigate, useParams } from '@solidjs/router';
 import JSZip from 'jszip';
-import { type Component, createSignal, type JSX, Match, onMount, Switch } from 'solid-js';
+import { type Component, createSignal, type JSX, Match, onMount, Show, Switch } from 'solid-js';
 import { fetchNoteById } from '../notes.services';
 
 export const ViewNotePage: Component = () => {
@@ -156,7 +156,7 @@ export const ViewNotePage: Component = () => {
                   <CopyButton text={getNoteContent()!} variant="secondary" />
                 </div>
 
-                <Match when={getDeleteAfterReading()}>
+                <Show when={getDeleteAfterReading()}>
                   <Alert
                     variant="destructive"
                     class="mb-4 border-red-500/50 bg-red-500/10 text-red-700 dark:border-red-400/40 dark:bg-red-500/12 dark:text-red-300"
@@ -170,7 +170,7 @@ export const ViewNotePage: Component = () => {
                       {t('view.warn-for-note-deletion.description')}
                     </AlertDescription>
                   </Alert>
-                </Match>
+                </Show>
 
                 <Card class="w-full rounded-md shadow-sm mb-2">
                   <CardContent class="p-6 overflow-x-auto max-w-100%">
