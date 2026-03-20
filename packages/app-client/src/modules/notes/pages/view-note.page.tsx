@@ -4,7 +4,7 @@ import { useI18n } from '@/modules/i18n/i18n.provider';
 import { isHttpErrorWithCode, isRateLimitError } from '@/modules/shared/http/http-errors';
 import { cn } from '@/modules/shared/style/cn';
 import { CopyButton } from '@/modules/shared/utils/copy';
-import { Alert, AlertDescription } from '@/modules/ui/components/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/modules/ui/components/alert';
 import { Button } from '@/modules/ui/components/button';
 import { Card, CardContent } from '@/modules/ui/components/card';
 import { formatBytes, safely } from '@corentinth/chisels';
@@ -157,11 +157,16 @@ export const ViewNotePage: Component = () => {
                 </div>
 
                 <Match when={getDeleteAfterReading()}>
-                  <Alert variant="destructive" class="mb-4">
-                    <div class="i-tabler-alert-triangle" />
-                    <AlertDescription>
-                      <span class="font-medium">{t('view.warn-for-note-deletion.title')}</span>
-                      {' '}
+                  <Alert
+                    variant="destructive"
+                    class="mb-4 border-red-500/50 bg-red-500/10 text-red-700 dark:border-red-400/40 dark:bg-red-500/12 dark:text-red-300"
+                    data-test-id="note-delete-warning"
+                  >
+                    <div class="i-tabler-alert-triangle text-lg text-red-600 dark:text-red-300" />
+                    <AlertTitle class="text-red-700 dark:text-red-300">
+                      {t('view.warn-for-note-deletion.title')}
+                    </AlertTitle>
+                    <AlertDescription class="text-red-700/90 dark:text-red-300/90">
                       {t('view.warn-for-note-deletion.description')}
                     </AlertDescription>
                   </Alert>
