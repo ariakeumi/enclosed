@@ -68,6 +68,39 @@ For example:
 - [Use rootless image](https://docs.enclosed.cc/self-hosting/docker#rootless-and-non-rootless-docker-images)
 - [Use Docker Compose](https://docs.enclosed.cc/self-hosting/docker-compose)
 
+### Deploy to Cloudflare Workers
+
+The application can also be deployed as a serverless Cloudflare Workers app backed by Cloudflare KV.
+
+1. Create a KV namespace and update the `notes` binding in [`packages/app-server/wrangler.toml`](./packages/app-server/wrangler.toml).
+2. Build the client assets and the Worker bundle:
+
+```bash
+pnpm --filter @enclosed/app-server build:worker
+```
+
+3. Set the Worker environment variables you need, especially the public settings mirrored by the client build (`VITE_*`) and the Worker runtime settings (`PUBLIC_*`, `AUTHENTICATION_*`, and `STORAGE_DRIVER_CLOUDFLARE_KV_BINDING` if you change the binding name).
+4. Deploy the Worker:
+
+```bash
+pnpm --filter @enclosed/app-server deploy:worker
+```
+
+The Worker serves `/api/*`, while the static frontend is served through Workers Assets with SPA fallback for note URLs.
+
+#### Deploy with GitHub integration
+
+You can also deploy the Worker by connecting the repository directly in Cloudflare Workers Builds.
+
+Recommended settings for this repository:
+
+- Worker name: `enclosed-app` (must match the `name` value in `packages/app-server/wrangler.toml`)
+- Root directory: `packages/app-server`
+- Build command: `pnpm run build:worker`
+- Deploy command: `npx wrangler deploy`
+
+Before enabling automatic deployments on your own Cloudflare account, make sure the `notes` KV binding in `packages/app-server/wrangler.toml` points to a KV namespace you control, or replace it during your first setup.
+
 ### Configuration
 
 You can refer to the [configuration documentation](https://docs.enclosed.cc/self-hosting/configuration) for more information on how to configure the application.
@@ -142,8 +175,8 @@ enclosed config set instance-url https://enclosed.cc
 This project is organized as a monorepo using `pnpm` workspaces. The structure is as follows:
 
 - **[packages/app-client](./packages/app-client/)**: Frontend application built with SolidJS.
-- **[packages/app-server](./packages/app-server/)**: Backend application using HonoJS.
-- **[packages/deploy-cloudflare](./packages/deploy-cloudflare/)**: Cloudflare Pages build scripts and configuration.
+- **[packages/app-server](./packages/app-server/)**: Backend application using HonoJS, with both Node and Cloudflare Workers entrypoints.
+- **[packages/deploy-cloudflare](./packages/deploy-cloudflare/)**: Legacy Cloudflare Pages build scripts.
 - **[packages/lib](./packages/lib/)**: Core functionalities of Enclosed.
 - **[packages/cli](./packages/cli/)**: Command-line interface for Enclosed.
 
@@ -184,6 +217,7 @@ Enclosed would not have been possible without the following open-source projects
 ### Hosting
 
 The [live instance](https://enclosed.cc) of Enclosed is hosted on [Cloudflare Pages](https://pages.cloudflare.com/) using [Cloudflare KV](https://developers.cloudflare.com/kv/) for storage.
+This repository also supports direct deployment to [Cloudflare Workers](https://developers.cloudflare.com/workers/) with Workers Assets + KV.
 
 ### Inspiration
 
