@@ -13,6 +13,9 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "build:worker": "pnpm --filter @enclosed/app-server --fail-if-no-match build:worker",
+    "deploy:worker": "pnpm --filter @enclosed/app-server --fail-if-no-match deploy:worker",
+    "preview:worker": "pnpm --filter @enclosed/app-server --fail-if-no-match preview:worker",
     "release": "bumpp --commit --tag --push --recursive",
     "docker:build": "docker build -t enclosed .",
     "docker:run": "docker run -d -p 8788:8787 enclosed"

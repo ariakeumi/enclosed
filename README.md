@@ -95,9 +95,12 @@ You can also deploy the Worker by connecting the repository directly in Cloudfla
 Recommended settings for this repository:
 
 - Worker name: `enclosed-app` (must match the `name` value in `packages/app-server/wrangler.toml`)
-- Root directory: `packages/app-server`
+- Root directory: optional
 - Build command: `pnpm run build:worker`
-- Deploy command: `npx wrangler deploy`
+- Deploy command: `pnpm run deploy:worker`
+- Non-production branch deploy command: `pnpm run preview:worker`
+
+These commands are safe to run from the monorepo root, which avoids Wrangler workspace auto-detection issues in Cloudflare Workers Builds.
 
 Before enabling automatic deployments on your own Cloudflare account, make sure the `notes` KV binding in `packages/app-server/wrangler.toml` points to a KV namespace you control, or replace it during your first setup.
 
