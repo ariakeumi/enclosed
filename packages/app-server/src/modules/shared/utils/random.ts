@@ -1,9 +1,10 @@
-import { ulidFactory } from 'ulid-workers';
-
 export { generateId };
 
-const createUlid = ulidFactory();
+const NOTE_ID_ALPHABET = '0123456789abcdefghjkmnpqrstvwxyz';
+const NOTE_ID_LENGTH = 8;
 
 function generateId() {
-  return createUlid().toLowerCase();
+  const bytes = crypto.getRandomValues(new Uint8Array(NOTE_ID_LENGTH));
+
+  return Array.from(bytes, byte => NOTE_ID_ALPHABET[byte % NOTE_ID_ALPHABET.length]).join('');
 }

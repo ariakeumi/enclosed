@@ -161,7 +161,7 @@ export const configDefinition = {
         .toLowerCase()
         .transform(x => x === 'true')
         .pipe(z.boolean()),
-      default: 'false',
+      default: 'true',
       env: 'PUBLIC_DEFAULT_DELETE_NOTE_AFTER_READING',
     },
     defaultNoteTtlSeconds: {

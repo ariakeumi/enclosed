@@ -176,6 +176,35 @@ describe('notes repository', () => {
         isPublic: true,
       });
     });
+
+    test('retries note id generation when the generated id already exists', async () => {
+      const { storage } = createMemoryStorage();
+
+      await storage.setItem('taken-id', {
+        payload: '<encrypted-content>',
+        deleteAfterReading: false,
+        encryptionAlgorithm: 'aes-256-gcm',
+        serializationFormat: 'cbor-array',
+        isPublic: true,
+      });
+
+      const generatedIds = ['taken-id', 'fresh-id'];
+      const { saveNote } = createNoteRepository({ storage });
+
+      const { noteId } = await saveNote({
+        payload: '<encrypted-content>',
+        ttlInSeconds: 60,
+        deleteAfterReading: false,
+        generateNoteId: () => generatedIds.shift() ?? 'unexpected-id',
+        now: new Date('2024-01-01T00:00:00.000Z'),
+        encryptionAlgorithm: 'aes-256-gcm',
+        serializationFormat: 'cbor-array',
+        isPublic: true,
+      });
+
+      expect(noteId).to.eql('fresh-id');
+      expect(await storage.getKeys()).to.eql(['fresh-id', 'taken-id']);
+    });
   });
 
   describe('getNoteExists', () => {

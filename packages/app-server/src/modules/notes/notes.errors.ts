@@ -23,3 +23,10 @@ export const createExpirationDelayRequiredError = createErrorFactory({
   code: 'note.expiration_delay_required',
   statusCode: 400,
 });
+
+export const createCannotGenerateUniqueNoteIdError = createErrorFactory({
+  message: 'Unable to generate a unique note id',
+  code: 'note.cannot_generate_unique_id',
+  statusCode: 500,
+  isInternal: true,
+});
